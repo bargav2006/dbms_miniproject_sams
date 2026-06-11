@@ -1,0 +1,24 @@
+{
+  "name": "student-attendance-system",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Student Attendance Management System (SAMS)",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "nodemon backend/server.js",
+    "migrate-mysql": "node backend/migrate_to_mysql.js",
+    "migrate-sqlite": "node backend/migrate_to_sqlite.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.0",
+    "mysql2": "^3.11.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}
