@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Dashboard - SAMS</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="./public/css/style.css">
+  <style>
+    body {
+      background: #eef2ff;
+      color: #0f172a;
+    }
+
+    .sidebar {
+      background: #f8fafc;
+      min-height: 100vh;
+      padding: 22px;
+      border-right: 1px solid #e2e8f0;
+    }
+    
+    .sidebar h2 {
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: #1e293b;
+    }
+    
+    .sidebar p {
+      font-size: 12px;
+      margin-bottom: 30px;
+      color: #475569;
+    }
+    
+    .nav-link {
+      color: #475569;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      transition: all 0.25s ease;
+      padding: 12px 14px;
+      background: transparent;
+    }
+    
+    .nav-link:hover,
+    .nav-link.active {
+      background: rgba(59, 130, 246, 0.18);
+      color: #0f172a;
+      box-shadow: inset 0 0 0 1px rgba(59, 130, 246, 0.14);
+    }
+    
+    .content {
+      padding: 32px;
+      background: #ffffff;
+    }
+
+    #student-name {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: #0f172a;
+    }
+    
+    .card {
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
+      margin-bottom: 22px;
+      background: #ffffff;
+    }
+    
+    .stat-card {
+      background: #eff6ff;
+      color: #0f172a;
+      padding: 22px;
+      border-radius: 16px;
+      text-align: center;
+      border: 1px solid #dbeafe;
+    }
+    
+    .stat-card h3 {
+      font-size: 28px;
+      font-weight: 700;
+      color: #1d4ed8;
+    }
+    
+    .stat-card p {
+      margin: 0;
+      font-size: 14px;
+      opacity: 0.88;
+      color: #475569;
+    }
+    
+    .progress-circle {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      background: conic-gradient(#2563eb 0%, #2563eb 72%, #e2e8f0 72%, #e2e8f0 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto;
+    }
+    
+    .progress-circle::after {
+      content: '';
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      background: #ffffff;
+      border-radius: 50%;
+    }
+    
+    .progress-value {
+      position: relative;
+      z-index: 1;
+      font-size: 24px;
+      font-weight: 700;
+      color: #1d4ed8;
+    }
+    
+    .table {
+      font-size: 14px;
+      color: #0f172a;
+    }
+
+    .table thead th {
+      color: #475569;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .table tbody tr {
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .table tbody tr:nth-child(even) {
+      background: #f8fafc;
+    }
+
+    .form-control,
+    .form-select {
+      background: #ffffff;
+      color: #0f172a;
+      border: 1px solid #cbd5e1;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+      border-color: rgba(59, 130, 246, 0.7);
+      box-shadow: 0 0 0 0.15rem rgba(59, 130, 246, 0.18);
+      background: #ffffff;
+      color: #0f172a;
+    }
+
+    .tab-pane {
+      display: none;
+    }
+
+    .tab-pane.active {
+      display: block;
+    }
+
+    .row.gx-4.gy-4 {
+      gap: 1.5rem;
+    }
+
+    .card.h-100 {
+      min-height: 100%;
+    }
+    
+    .badge {
+      padding: 6px 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="d-flex">
+    <!-- Sidebar -->
+    <aside class="sidebar text-white" style="width: 250px;">
+      <div class="brand">
+        <h2>SAMS</h2>
+        <p>Student Portal</p>
+      </div>
+
+      <nav class="nav flex-column gap-2">
+        <a class="nav-link active" href="#dashboard" data-tab="dashboard">Dashboard</a>
+        <a class="nav-link" href="#attendance" data-tab="attendance">My Attendance</a>
+        <a class="nav-link" href="#marks" data-tab="marks">My Marks</a>
+        <hr style="opacity: 0.3;">
+        <a class="nav-link" href="#logout" id="logout-link">Logout</a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="content flex-grow-1">
+      <!-- Header -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h1 class="fw-bold">Student Dashboard</h1>
+          <p class="text-muted mb-0" id="student-name">Welcome</p>
+        </div>
+        <button class="btn btn-outline-secondary btn-sm" id="logout-btn">Logout</button>
+      </div>
+
+      <!-- Dashboard Tab -->
+      <section id="dashboard" class="tab-pane active">
+        <div class="row mb-4">
+          <div class="col-md-3">
+            <div class="stat-card">
+              <h3 id="roll-number">-</h3>
+              <p>Student ID</p>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="stat-card">
+              <h3 id="class-name">-</h3>
+              <p>Class</p>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="stat-card">
+              <h3 id="total-present">-</h3>
+              <p>Days Present</p>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="stat-card">
+              <h3 id="attendance-percentage">-</h3>
+              <p>Attendance %</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="row gx-4 gy-4 mb-4">
+          <div class="col-lg-7">
+            <div class="card p-4 h-100">
+              <h5 class="fw-bold mb-3">Attendance Summary</h5>
+              <div id="attendance-summary-dashboard" class="text-center">
+                <div class="progress-circle mx-auto" id="attendance-circle-container-dashboard" style="background: conic-gradient(#667eea 0%, #667eea 0%, #e9ecef 0%, #e9ecef 100%);">
+                  <div class="progress-value" id="attendance-circle-dashboard">0%</div>
+                </div>
+                <p class="mt-3 text-muted">Your overall attendance</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-5">
+            <div class="card p-4 h-100">
+              <h5 class="fw-bold mb-3">Profile Information</h5>
+              <table class="table table-sm">
+                <tr>
+                  <th>Name:</th>
+                  <td id="profile-name">-</td>
+                </tr>
+                <tr>
+                  <th>Email:</th>
+                  <td id="profile-email">-</td>
+                </tr>
+                <tr>
+                  <th>Class:</th>
+                  <td id="profile-class">-</td>
+                </tr>
+                <tr>
+                  <th>Status:</th>
+                  <td><span class="badge bg-success">Active</span></td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Attendance Tab -->
+      <section id="attendance" class="tab-pane">
+        <div class="card p-4">
+          <h5 class="fw-bold mb-4">My Attendance Records</h5>
+          <form id="attendance-filter-form" class="mb-4">
+            <div class="row">
+              <div class="col-md-3">
+                <label class="form-label">Start Date</label>
+                <input type="date" id="att-start-date" class="form-control">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">End Date</label>
+                <input type="date" id="att-end-date" class="form-control">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Subject</label>
+                <select id="att-subject" class="form-select">
+                  <option value="">All subjects</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label"></label>
+                <button type="submit" class="btn btn-primary w-100 mt-2">Filter</button>
+              </div>
+            </div>
+          </form>
+
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Subject</th>
+                <th>Date of Class Conducted</th>
+                <th>Present</th>
+                <th>Absent</th>
+              </tr>
+            </thead>
+            <tbody id="attendance-body">
+              <tr><td colspan="4" class="text-center text-muted">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>        <div class="card p-4 mt-4">
+          <h5 class="fw-bold mb-4">Subject-wise Attendance</h5>
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Subject</th>
+                <th>Present</th>
+                <th>Absent</th>
+                <th>Total</th>
+                <th>Attendance %</th>
+              </tr>
+            </thead>
+            <tbody id="subject-attendance-body">
+              <tr><td colspan="5" class="text-center text-muted">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>      </section>
+
+      <!-- Marks Tab -->
+      <section id="marks" class="tab-pane">
+        <div class="card p-4">
+          <h5 class="fw-bold mb-4">My Subject Marks</h5>
+          <div class="row mb-3">
+            <div class="col-md-4">
+              <label class="form-label">Subject</label>
+              <select id="marks-subject-filter" class="form-select">
+                <option value="">All subjects</option>
+              </select>
+            </div>
+          </div>
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Subject</th>
+                <th>IA1</th>
+                <th>IA2</th>
+                <th>IA3</th>
+                <th>Best 2 Avg</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="marks-body">
+              <tr><td colspan="6" class="text-center text-muted">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const API_BASE = '/api';
+    let token = localStorage.getItem('token');
+    let user = JSON.parse(localStorage.getItem('user') || '{}');
+    const availableSubjects = [
+      { code: 'aiml12', label: 'AIML' },
+      { code: 'db12', label: 'DBMS' },
+      { code: 'math12', label: 'Mathematics' },
+      { code: 'py12', label: 'Python' },
+      { code: 'ds12', label: 'Data Structures' },
+    ];
+
+    function populateStudentSubjectSelects() {
+      const attendanceSubject = document.getElementById('att-subject');
+      const marksSubject = document.getElementById('marks-subject-filter');
+      const options = '<option value="">All subjects</option>' + availableSubjects.map((subject) => `<option value="${subject.code}">${subject.label}</option>`).join('');
+      if (attendanceSubject) {
+        attendanceSubject.innerHTML = options;
+      }
+      if (marksSubject) {
+        marksSubject.innerHTML = options;
+      }
+    }
+
+    // Check authentication
+    if (!token || localStorage.getItem('role') !== 'student') {
+      window.location.href = '/login.html';
+    }
+
+    // Set student name
+    document.getElementById('student-name').textContent = `Welcome, ${user.fullName || 'Student'}`;
+
+    // Tab switching
+    document.querySelectorAll('.nav-link').forEach(link => {
+      link.addEventListener('click', function(e) {
+        if (this.id !== 'logout-link') {
+          e.preventDefault();
+          const tab = this.dataset.tab;
+          document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+          document.getElementById(tab).classList.add('active');
+          document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+          this.classList.add('active');
+
+          // Load data when tab changes
+          if (tab === 'attendance') loadAttendance();
+          if (tab === 'marks') loadMarks();
+        }
+      });
+    });
+
+    // Logout
+    document.getElementById('logout-btn').addEventListener('click', logout);
+    document.getElementById('logout-link').addEventListener('click', logout);
+    document.getElementById('attendance-filter-form').addEventListener('submit', (event) => {
+      event.preventDefault();
+      loadAttendance();
+    });
+    document.getElementById('marks-subject-filter').addEventListener('change', () => loadMarks());
+
+    function logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('role');
+      localStorage.removeItem('user');
+      window.location.href = '/login.html';
+    }
+
+    // Helper function to make API calls
+    async function apiCall(endpoint, method = 'GET', body = null) {
+      const options = {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      };
+
+      if (body) {
+        options.body = JSON.stringify(body);
+      }
+
+      try {
+        const response = await fetch(`${API_BASE}${endpoint}`, options);
+        if (response.status === 401) {
+          logout();
+          return null;
+        }
+        return await response.json();
+      } catch (error) {
+        console.error('API Error:', error);
+        return null;
+      }
+    }
+
+    // Load dashboard data
+    async function loadDashboard() {
+      document.getElementById('roll-number').textContent = user.id || '-';
+      document.getElementById('profile-name').textContent = user.fullName || '-';
+      document.getElementById('profile-email').textContent = user.email || '-';
+
+      const classes = await apiCall('/classes');
+      const classInfo = classes?.find(c => c.class_id == user.classId);
+      const classLabel = classInfo ? `${classInfo.class_name} ${classInfo.section || ''}` : user.classId || '-';
+      document.getElementById('class-name').textContent = classLabel;
+      document.getElementById('profile-class').textContent = classLabel;
+
+      // Load attendance report
+      const report = await apiCall(`/attendance/report?student_id=${user.id}`);
+      if (report) {
+        const attendancePercentage = report.attendance_percentage || 0;
+        const presentCount = report.present_count || 0;
+        document.getElementById('total-present').textContent = presentCount;
+        document.getElementById('attendance-percentage').textContent = attendancePercentage.toFixed(2) + '%';
+
+        const percentValue = Math.max(0, Math.min(100, Number(attendancePercentage || 0)));
+        const fillColor = percentValue < 50 ? '#f44336' : percentValue < 75 ? '#ffca28' : '#4caf50';
+
+        const circleContainerDashboard = document.getElementById('attendance-circle-container-dashboard');
+        const circleValueDashboard = document.getElementById('attendance-circle-dashboard');
+        if (circleContainerDashboard) {
+          circleContainerDashboard.style.background = `conic-gradient(${fillColor} 0%, ${fillColor} ${percentValue}%, #e9ecef ${percentValue}%, #e9ecef 100%)`;
+        }
+        if (circleValueDashboard) {
+          circleValueDashboard.textContent = Math.round(attendancePercentage) + '%';
+          circleValueDashboard.style.color = fillColor;
+        }
+      }
+    }
+
+    async function loadAttendance() {
+      const startDate = document.getElementById('att-start-date').value;
+      const endDate = document.getElementById('att-end-date').value;
+      const subject = document.getElementById('att-subject').value;
+      const params = new URLSearchParams({ student_id: user.id });
+      if (startDate) params.append('start_date', startDate);
+      if (endDate) params.append('end_date', endDate);
+      if (subject) params.append('subject', subject);
+
+      const report = await apiCall(`/attendance/report?${params.toString()}`);
+      const attendancePercentage = report?.attendance_percentage || 0;
+      const percentValue = Math.max(0, Math.min(100, Number(attendancePercentage || 0)));
+      const circleContainer = document.getElementById('attendance-circle-container');
+      const circleValueElem = document.getElementById('attendance-circle');
+      let fillColor = '#4caf50';
+      if (percentValue < 50) fillColor = '#f44336';
+      else if (percentValue < 75) fillColor = '#ffca28';
+      if (circleContainer) {
+        circleContainer.style.background = `conic-gradient(${fillColor} 0%, ${fillColor} ${percentValue}%, #e9ecef ${percentValue}%, #e9ecef 100%)`;
+      }
+      if (circleValueElem) {
+        circleValueElem.textContent = Math.round(attendancePercentage) + '%';
+        circleValueElem.style.color = fillColor;
+      }
+
+      let rows = report?.subject_breakdown && report.subject_breakdown.length > 0 ? report.subject_breakdown : [];
+
+      const html = rows.length ? rows.map(item => {
+        // Map subject code/name to readable label
+        let subjectLabel = item.subject || 'N/A';
+        const byCode = availableSubjects.find(s => s.code === item.subject);
+        if (byCode) {
+          subjectLabel = byCode.label;
+        } else {
+          const byLabel = availableSubjects.find(s => s.label.toLowerCase() === item.subject?.toLowerCase());
+          if (byLabel) {
+            subjectLabel = byLabel.label;
+          }
+        }
+
+        const present = Number(item.present_count || 0);
+        const total = Number(item.total_count || 0);
+        const absent = Math.max(0, total - present);
+        return `
+          <tr>
+            <td>${subjectLabel}</td>
+            <td>${item.attendance_date ? new Date(item.attendance_date).toLocaleDateString() : 'N/A'}</td>
+            <td>${present}</td>
+            <td>${absent}</td>
+          </tr>
+        `;
+      }).join('') : '<tr><td colspan="4" class="text-center">No attendance records</td></tr>';
+
+      document.getElementById('attendance-body').innerHTML = html;
+
+      const subjectSummary = rows.reduce((summary, item) => {
+        const key = item.subject || 'General';
+        const label = availableSubjects.find(s => s.code === item.subject)?.label
+          || availableSubjects.find(s => s.label.toLowerCase() === item.subject?.toLowerCase())?.label
+          || item.subject || 'General';
+
+        if (!summary[key]) {
+          summary[key] = { subject: label, present: 0, total: 0 };
+        }
+
+        summary[key].present += Number(item.present_count || 0);
+        summary[key].total += Number(item.total_count || 0);
+        return summary;
+      }, {});
+
+      const subjectHtml = Object.values(subjectSummary).length ? Object.values(subjectSummary).map((item) => {
+        const absent = item.total - item.present;
+        const attendancePercent = item.total === 0 ? 0 : Number(((item.present / item.total) * 100).toFixed(2));
+        return `
+          <tr>
+            <td>${item.subject}</td>
+            <td>${item.present}</td>
+            <td>${absent}</td>
+            <td>${item.total}</td>
+            <td>${attendancePercent}%</td>
+          </tr>
+        `;
+      }).join('') : '<tr><td colspan="5" class="text-center">No subject attendance available</td></tr>';
+
+      document.getElementById('subject-attendance-body').innerHTML = subjectHtml;
+    }
+
+    async function loadMarks() {
+      const subject = document.getElementById('marks-subject-filter').value;
+      const params = new URLSearchParams({ student_id: user.id });
+      if (subject) params.append('subject', subject);
+      const marks = await apiCall(`/attendance/subject-marks?${params.toString()}`);
+      const html = marks?.length ? marks.map(m => {
+        // Map subject code to readable label
+        const subjectLabel = availableSubjects.find(s => s.code === m.subject)?.label || m.subject || 'N/A';
+        const ia1 = Number(m.ia1) || 0;
+        const ia2 = Number(m.ia2) || 0;
+        const ia3 = Number(m.ia3) || 0;
+        const bestTwoAverage = m.best_two_average !== undefined && m.best_two_average !== null
+          ? Number(m.best_two_average)
+          : Number([ia1, ia2, ia3].sort((a, b) => b - a).slice(0, 2).reduce((sum, value) => sum + value, 0) / 2).toFixed(2);
+        const status = bestTwoAverage >= 10 ? 'Pass' : 'Fail';
+
+        return `
+          <tr>
+            <td>${subjectLabel}</td>
+            <td>${m.ia1 || '-'}</td>
+            <td>${m.ia2 || '-'}</td>
+            <td>${m.ia3 || '-'}</td>
+            <td>${bestTwoAverage || '-'}</td>
+            <td><span class="badge bg-${status === 'Pass' ? 'success' : 'danger'}">${status}</span></td>
+          </tr>
+        `;
+      }).join('') : '<tr><td colspan="6" class="text-center">No marks records</td></tr>';
+
+      document.getElementById('marks-body').innerHTML = html;
+    }
+
+    // Initialize
+    populateStudentSubjectSelects();
+    loadDashboard();
+  </script>
+</body>
+</html>

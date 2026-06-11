@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teacher Dashboard - SAMS</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="./public/css/style.css">
+  
+</head>
+<body>
+  <div class="page-shell">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="brand">
+        <h2>SAMS</h2>
+        <p>Management Panel</p>
+      </div>
+
+      <nav class="nav flex-column gap-2">
+        <a class="nav-link active" href="#dashboard" data-tab="dashboard">Dashboard</a>
+        <a class="nav-link" href="#attendance" data-tab="attendance">Mark Attendance</a>
+        <a class="nav-link" href="#students" data-tab="students">Students</a>
+        <a class="nav-link" href="#marks" data-tab="marks">Manage Marks</a>
+        <a class="nav-link" href="#reports" data-tab="reports">Reports</a>
+        <hr style="opacity: 0.3;">
+        <a class="nav-link" href="#logout" id="logout-link">Logout</a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="content">
+      <main class="container py-4">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+          <div>
+            <h1 class="fw-bold">Teacher Dashboard</h1>
+            <p class="text-muted mb-0" id="teacher-name">Welcome</p>
+          </div>
+          <div class="d-flex flex-wrap gap-2 align-items-center">
+            <button class="btn btn-outline-secondary btn-sm" id="logout-btn">Logout</button>
+          </div>
+        </div>
+
+      <!-- Dashboard Tab -->
+      <section id="dashboard" class="tab-pane active">
+        <div class="row mb-4">
+          <div class="col-12">
+            <div class="card p-4">
+              <h5 class="fw-bold mb-3">Teacher Info</h5>
+              <table class="table table-sm">
+                <tr>
+                  <th>Name:</th>
+                  <td id="teacher-profile-name">-</td>
+                </tr>
+                <tr>
+                  <th>Username:</th>
+                  <td id="teacher-profile-username">-</td>
+                </tr>
+                <tr>
+                  <th>Department:</th>
+                  <td id="teacher-profile-department">-</td>
+                </tr>
+                <tr>
+                  <th>Email:</th>
+                  <td id="teacher-profile-email">-</td>
+                </tr>
+                <tr>
+                  <th>Assigned Classes:</th>
+                  <td id="teacher-profile-classes">-</td>
+                </tr>
+                <tr>
+                  <th>Teaching:</th>
+                  <td id="teacher-profile-class-list">-</td>
+                </tr>
+                <tr>
+                  <th>Status:</th>
+                  <td><span class="badge bg-success">Active</span></td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Attendance Tab -->
+      <section id="attendance" class="tab-pane">
+        <div class="card p-4">
+          <h5 class="fw-bold mb-4">Mark Attendance</h5>
+          <form id="attendance-form">
+            <div class="row mb-3">
+              <div class="col-md-4">
+                <label class="form-label">Class</label>
+                <select id="class-select" class="form-select" required>
+                  <option value="">Select a class...</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Date</label>
+                <input type="date" id="attendance-date" class="form-control" required>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Subject</label>
+                <select id="subject" class="form-select" required>
+                  <option value="">Select a subject...</option>
+                </select>
+              </div>
+            </div>
+            <input type="hidden" id="class-number" value="1">
+            <div id="attendance-status-message" class="alert d-none" role="alert"></div>
+            <button type="submit" class="btn btn-primary mb-3">Load Students</button>
+          </form>
+
+          <div id="attendance-records" style="display: none;">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Roll No.</th>
+                  <th>Name</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="attendance-body">
+              </tbody>
+            </table>
+            <button type="button" class="btn btn-success" id="save-attendance">Save Attendance</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Students Tab -->
+      <section id="students" class="tab-pane">
+        <div class="card p-4 mb-4">
+          <h5 class="fw-bold mb-3">Add Student</h5>
+          <form id="add-student-form" class="row g-3">
+            <div class="col-md-3">
+              <input type="text" id="student-roll-number" class="form-control" placeholder="Roll Number" required>
+            </div>
+            <div class="col-md-3">
+              <input type="text" id="student-full-name" class="form-control" placeholder="Full Name" required>
+            </div>
+            <div class="col-md-3">
+              <select id="student-class-select" class="form-select" required>
+                <option value="">Select a class...</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <input type="email" id="student-email" class="form-control" placeholder="Email">
+            </div>
+            <div class="col-md-3">
+              <input type="text" id="student-phone" class="form-control" placeholder="Phone">
+            </div>
+            <div class="col-md-3 align-self-end">
+              <button type="submit" class="btn btn-primary w-100">Add Student</button>
+            </div>
+          </form>
+        </div>
+        <div class="card p-4">
+          <h5 class="fw-bold mb-3">Students in Your Classes</h5>
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Roll No.</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Class</th>
+                <th>Attendance %</th>
+              </tr>
+            </thead>
+            <tbody id="students-body">
+              <tr><td colspan="5" class="text-center text-muted">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Marks Tab -->
+      <section id="marks" class="tab-pane">
+        <div class="card p-4">
+          <h5 class="fw-bold mb-4">Manage Subject Marks</h5>
+          <form id="marks-form">
+            <div class="row mb-3">
+              <div class="col-md-4">
+                <label class="form-label">Student</label>
+                <select id="marks-student-select" class="form-select" required>
+                  <option value="">Select a student...</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Subject</label>
+                <select id="marks-subject" class="form-select" required>
+                  <option value="">Select a subject...</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label"></label>
+                <button type="submit" class="btn btn-primary w-100 mt-2">Load Marks</button>
+              </div>
+            </div>
+          </form>
+
+          <div id="marks-input" style="display: none;">
+            <div class="row mb-3">
+              <div class="col-md-3">
+                <label class="form-label">IA1 Marks (out of 25)</label>
+                <input type="number" id="ia1" class="form-control" min="0" max="25" required>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">IA2 Marks (out of 25)</label>
+                <input type="number" id="ia2" class="form-control" min="0" max="25" required>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">IA3 Marks (out of 25)</label>
+                <input type="number" id="ia3" class="form-control" min="0" max="25" required>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Best 2 Average</label>
+                <input type="number" id="best-two" class="form-control" disabled>
+              </div>
+            </div>
+            <button type="button" class="btn btn-success" id="save-marks">Save Marks</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Reports Tab -->
+      <section id="reports" class="tab-pane">
+        <div class="card p-4">
+          <h5 class="fw-bold mb-3">Attendance Reports</h5>
+          <form id="report-form" class="mb-4">
+            <div class="row mb-3">
+              <div class="col-md-4">
+                <label class="form-label">Student</label>
+                <select id="report-student" class="form-select" required>
+                  <option value="">Select a student...</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Start Date</label>
+                <input type="date" id="report-start" class="form-control">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">End Date</label>
+                <input type="date" id="report-end" class="form-control">
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Generate Report</button>
+          </form>
+          <div id="report-results"></div>
+        </div>
+      </section>
+
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const API_BASE = '/api';
+    let token = localStorage.getItem('token');
+    let user = JSON.parse(localStorage.getItem('user') || '{}');
+    let currentAttendanceData = [];
+    const availableSubjects = [
+      { code: 'aiml12', label: 'AIML' },
+      { code: 'db12', label: 'DBMS' },
+      { code: 'math12', label: 'Mathematics' },
+      { code: 'py12', label: 'Python' },
+      { code: 'ds12', label: 'Data Structures' },
+    ];
+
+    function populateTeacherSubjectSelects() {
+      const attendanceSubject = document.getElementById('subject');
+      const marksSubject = document.getElementById('marks-subject');
+      const options = '<option value="">Select a subject...</option>' + availableSubjects.map((subject) => `<option value="${subject.code}">${subject.label}</option>`).join('');
+      if (attendanceSubject) attendanceSubject.innerHTML = options;
+      if (marksSubject) marksSubject.innerHTML = options;
+    }
+
+    // Check authentication
+    if (!token || localStorage.getItem('role') !== 'teacher') {
+      window.location.href = '/login.html';
+    }
+
+    // Set teacher name
+    const teacherFirstName = user.fullName || user.full_name || user.name || 'Teacher';
+    document.getElementById('teacher-name').textContent = `Welcome, ${teacherFirstName}`;
+
+    // Tab switching
+    document.querySelectorAll('.nav-link[data-tab]').forEach(link => {
+      link.addEventListener('click', function(e) {
+        const tab = this.dataset.tab;
+        if (!tab) return;
+        e.preventDefault();
+        document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+        const targetPane = document.getElementById(tab);
+        if (targetPane) targetPane.classList.add('active');
+        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+
+    // Logout
+    document.getElementById('logout-btn').addEventListener('click', logout);
+    document.getElementById('logout-link').addEventListener('click', logout);
+
+    function logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('role');
+      localStorage.removeItem('user');
+      window.location.href = '/login.html';
+    }
+
+    // Helper function to make API calls
+    async function apiCall(endpoint, method = 'GET', body = null) {
+      const options = {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      };
+
+      if (body) {
+        options.body = JSON.stringify(body);
+      }
+
+      try {
+        const response = await fetch(`${API_BASE}${endpoint}`, options);
+        if (response.status === 401) {
+          logout();
+          return null;
+        }
+        return await response.json();
+      } catch (error) {
+        console.error('API Error:', error);
+        return null;
+      }
+    }
+
+    async function loadReport(studentId, startDate, endDate) {
+      if (!studentId) {
+        document.getElementById('report-results').innerHTML = '<p class="text-muted">Select a student to generate a report.</p>';
+        return;
+      }
+
+      const params = new URLSearchParams({ student_id: studentId });
+      if (startDate) params.append('start_date', startDate);
+      if (endDate) params.append('end_date', endDate);
+
+      const report = await apiCall(`/attendance/report?${params.toString()}`);
+      if (!report) {
+        document.getElementById('report-results').innerHTML = '<p class="text-danger">Unable to load report.</p>';
+        return;
+      }
+
+      // Build a date range label from the query params for display
+      const startLabel = startDate ? new Date(startDate).toLocaleDateString('en-IN') : null;
+      const endLabel = endDate ? new Date(endDate).toLocaleDateString('en-IN') : null;
+      let dateRangeLabel = 'All dates';
+      if (startLabel && endLabel) dateRangeLabel = `${startLabel} – ${endLabel}`;
+      else if (startLabel) dateRangeLabel = `From ${startLabel}`;
+      else if (endLabel) dateRangeLabel = `Until ${endLabel}`;
+
+      // Aggregate subject breakdown across all classes/dates
+      const aggregated = (report.subject_breakdown || []).reduce((acc, row) => {
+        const rawKey = (row.subject || 'General').toString();
+        // normalize key to lower-case label if possible
+        const byCode = availableSubjects.find(s => s.code === row.subject);
+        const byLabel = availableSubjects.find(s => s.label.toLowerCase() === (row.subject || '').toLowerCase());
+        const key = byCode ? byCode.label : byLabel ? byLabel.label : (row.subject || 'General');
+        if (!acc[key]) acc[key] = { subject: key, present: 0, total: 0 };
+        acc[key].present += Number(row.present_count || 0);
+        acc[key].total += Number(row.total_count || 0);
+        return acc;
+      }, {});
+
+      const subjectRows = Object.values(aggregated).map(s => {
+        const present = s.present;
+        const total = s.total;
+        const absent = total - present;
+        const pct = total === 0 ? 0 : Number(((present / total) * 100).toFixed(2));
+        return `
+          <tr>
+            <td>${s.subject}</td>
+            <td>${present}</td>
+            <td>${absent}</td>
+            <td>${total}</td>
+            <td>${pct}%</td>
+          </tr>
+        `;
+      }).join('');
+
+      document.getElementById('report-results').innerHTML = `
+        <div class="mb-3">
+          <strong>${report.full_name || 'Student'}</strong> (${report.student_id || 'N/A'})
+        </div>
+        <div class="row mb-3">
+          <div class="col-md-4"><div class="card p-3"><strong>Total Present</strong><div>${report.present_count || 0}</div></div></div>
+          <div class="col-md-4"><div class="card p-3"><strong>Total Sessions</strong><div>${report.total_count || 0}</div></div></div>
+          <div class="col-md-4"><div class="card p-3"><strong>Attendance %</strong><div>${Number(report.attendance_percentage || 0).toFixed(2)}%</div></div></div>
+        </div>
+        <div>
+          <h6>Subject breakdown</h6>
+          ${subjectRows ? `<table class="table table-sm"><thead><tr><th>Subject</th><th>Present</th><th>Absent</th><th>Total</th><th>%</th></tr></thead><tbody>${subjectRows}</tbody></table>` : '<p class="text-muted">No attendance records found for this student.</p>'}
+        </div>
+      `;
+    }
+
+    // Load dashboard data
+    async function loadDashboard() {
+      const classes = await apiCall('/classes') || [];
+      const allStudents = await apiCall('/students') || [];
+      const teacherId = Number(user.id || user.teacher_id || user.teacherId || 0);
+      const teacherClasses = classes.filter(c => Number(c.teacher_id) === teacherId);
+      const teacherClassIds = teacherClasses.map(c => Number(c.class_id));
+      const teacherStudents = allStudents.filter(s => teacherClassIds.includes(Number(s.class_id)));
+
+      document.getElementById('teacher-profile-name').textContent = user.fullName || user.full_name || user.name || '-';
+      document.getElementById('teacher-profile-username').textContent = user.username || user.user_name || user.userName || '-';
+      document.getElementById('teacher-profile-department').textContent = user.department || user.dept || '-';
+      document.getElementById('teacher-profile-email').textContent = user.email || user.user_email || '-';
+      document.getElementById('teacher-profile-classes').textContent = teacherClasses.length ? `${teacherClasses.length} assigned` : 'None';
+      document.getElementById('teacher-profile-class-list').textContent = teacherClasses.length ? teacherClasses.map((c) => `${c.class_name} ${c.section || ''}`.trim()).join(', ') : 'None';
+
+      // Populate class select with all available classes, while still showing assigned classes in profile stats
+      const allClassHtml = classes.map(c => `<option value="${c.class_id}">${c.class_name}${c.section ? ' - ' + c.section : ''}</option>`).join('') || '';
+      document.getElementById('class-select').innerHTML = '<option value="">Select a class...</option>' + allClassHtml;
+      const studentClassSelect = document.getElementById('student-class-select');
+      if (studentClassSelect) {
+        studentClassSelect.innerHTML = '<option value="">Select a class...</option>' + allClassHtml;
+      }
+
+      // Populate student selects with only students in the teacher's classes
+      const studentHtml = teacherStudents.map(s => `<option value="${s.student_id}">${s.full_name} (${s.student_id})</option>`).join('') || '';
+      document.getElementById('marks-student-select').innerHTML = '<option value="">Select a student...</option>' + studentHtml;
+      document.getElementById('report-student').innerHTML = '<option value="">Select a student...</option>' + studentHtml;
+
+      // Load attendance percentages for teacher's students
+      const attendanceReports = await Promise.all(teacherStudents.map(s => apiCall(`/attendance/report?student_id=${encodeURIComponent(s.student_id)}`).catch(() => null)));
+      const studentsTableHtml = teacherStudents.map((s, idx) => {
+        const report = attendanceReports[idx];
+        const attendancePct = report && typeof report.attendance_percentage !== 'undefined' ? `${Number(report.attendance_percentage).toFixed(2)}%` : '-';
+        return `
+        <tr data-student-id="${s.student_id}" class="student-row-clickable" style="cursor: pointer;">
+          <td>${s.student_id}</td>
+          <td>${s.full_name}</td>
+          <td>${s.email || '-'}</td>
+          <td>${s.class_name ? s.class_name + (s.section ? ' ' + s.section : '') : 'N/A'}</td>
+          <td>${attendancePct}</td>
+        </tr>
+      `;
+      }).join('') || '<tr><td colspan="5" class="text-center">No students in your classes</td></tr>';
+
+      document.getElementById('students-body').innerHTML = studentsTableHtml;
+
+      document.querySelectorAll('#students-body tr[data-student-id]').forEach((tr) => {
+        tr.addEventListener('click', async () => {
+          const studentId = tr.dataset.studentId;
+          const studentName = tr.children[1]?.textContent || 'Student';
+          const modalTitle = document.getElementById('student-detail-title');
+          const modalBody = document.getElementById('student-detail-body');
+          modalTitle.textContent = `${studentName} — Attendance Breakdown`;
+          modalBody.innerHTML = '<p class="text-muted">Loading...</p>';
+
+          try {
+            const report = await apiCall(`/attendance/report?student_id=${encodeURIComponent(studentId)}&start_date=1970-01-01`);
+            const breakdown = report?.subject_breakdown || [];
+            if (!breakdown.length) {
+              modalBody.innerHTML = '<p class="text-muted">No subject attendance available.</p>';
+            } else {
+              const summary = breakdown.reduce((acc, item) => {
+                const key = (item.subject || 'General').toString();
+                if (!acc[key]) acc[key] = { subject: key, present: 0, total: 0 };
+                acc[key].present += Number(item.present_count || 0);
+                acc[key].total += Number(item.total_count || 0);
+                return acc;
+              }, {});
+
+              const rows = Object.values(summary).map(s => {
+                const subjLabel = (availableSubjects.find(su => su.code === s.subject)?.label) || (availableSubjects.find(su => su.label.toLowerCase() === (s.subject || '').toLowerCase())?.label) || s.subject || 'General';
+                const present = s.present;
+                const total = s.total;
+                const absent = total - present;
+                const pct = total === 0 ? 0 : Number(((present / total) * 100).toFixed(2));
+                return `<tr><td>${subjLabel}</td><td>${present}</td><td>${absent}</td><td>${total}</td><td>${pct}%</td></tr>`;
+              }).join('');
+
+              modalBody.innerHTML = `
+                <div class="table-responsive">
+                  <table class="table table-sm table-striped">
+                    <thead>
+                      <tr>
+                        <th>Subject</th>
+                        <th>Present</th>
+                        <th>Absent</th>
+                        <th>Total</th>
+                        <th>Attendance %</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${rows}
+                    </tbody>
+                  </table>
+                </div>
+              `;
+            }
+          } catch (err) {
+            modalBody.innerHTML = '<p class="text-danger">Failed to load attendance details.</p>';
+          }
+
+          const modalEl = document.getElementById('studentDetailModal');
+          const bsModal = new bootstrap.Modal(modalEl);
+          bsModal.show();
+        });
+      });
+    }
+
+    // Attendance form
+    document.getElementById('attendance-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const classId = document.getElementById('class-select').value;
+      const date = document.getElementById('attendance-date').value;
+      const subject = document.getElementById('subject').value;
+      const classNumber = Number(document.getElementById('class-number')?.value || 1);
+      const statusMessage = document.getElementById('attendance-status-message');
+
+      if (!classId || !date || !subject) {
+        statusMessage.classList.add('d-none');
+        return;
+      }
+
+      const students = await apiCall(`/students?class_id=${encodeURIComponent(classId)}`) || [];
+      const classStudents = students.filter((s) => String(s.class_id || s.classId) === String(classId));
+      const attendanceRows = await apiCall(`/attendance/daily?date=${encodeURIComponent(date)}`) || [];
+      const sessionRows = attendanceRows.filter((row) =>
+        String(row.class_id) === String(classId) &&
+        String(row.subject || 'General') === String(subject) &&
+        Number(row.class_number || 1) === classNumber
+      );
+      const sessionLocked = sessionRows.some((row) => Number(row.edit_count || 0) >= 1);
+      const statusMap = new Map(sessionRows.map((row) => [String(row.student_id), row.status]));
+
+      currentAttendanceData = classStudents;
+
+      if (!classStudents.length) {
+        document.getElementById('attendance-body').innerHTML = '<tr><td colspan="3" class="text-center text-muted">No students found for this class.</td></tr>';
+        document.getElementById('attendance-records').style.display = 'block';
+        statusMessage.classList.add('d-none');
+        statusMessage.classList.remove('alert-danger', 'alert-warning');
+        document.getElementById('save-attendance').disabled = true;
+        return;
+      }
+
+      const html = classStudents.map((s) => {
+        const status = statusMap.get(String(s.student_id)) || 'Present';
+        const presentChecked = status === 'Present' ? 'checked' : '';
+        const absentChecked = status !== 'Present' ? 'checked' : '';
+        return `
+          <tr>
+            <td>${s.roll_number}</td>
+            <td>${s.full_name}</td>
+            <td>
+              <div class="d-flex gap-3 align-items-center">
+                <div class="form-check">
+                  <input class="form-check-input attendance-status" type="radio" name="status-${s.student_id}" id="present-${s.student_id}" value="Present" data-student-id="${s.student_id}" ${presentChecked}>
+                  <label class="form-check-label" for="present-${s.student_id}">Present</label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input attendance-status" type="radio" name="status-${s.student_id}" id="absent-${s.student_id}" value="Absent" data-student-id="${s.student_id}" ${absentChecked}>
+                  <label class="form-check-label" for="absent-${s.student_id}">Absent</label>
+                </div>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      document.getElementById('attendance-body').innerHTML = html;
+      document.getElementById('attendance-records').style.display = 'block';
+
+      if (sessionRows.length > 0) {
+        statusMessage.classList.remove('d-none');
+        if (sessionLocked) {
+          statusMessage.classList.remove('alert-warning');
+          statusMessage.classList.add('alert-danger');
+          statusMessage.textContent = 'Attendance has already been marked and edited once for this class, subject, and date. Further changes are not allowed.';
+          document.getElementById('save-attendance').disabled = true;
+        } else {
+          statusMessage.classList.remove('alert-danger');
+          statusMessage.classList.add('alert-warning');
+          statusMessage.textContent = 'Attendance has already been marked for this class, subject, and date. You are allowed one edit.';
+          document.getElementById('save-attendance').disabled = false;
+        }
+      } else {
+        statusMessage.classList.add('d-none');
+        statusMessage.classList.remove('alert-danger', 'alert-warning');
+        document.getElementById('save-attendance').disabled = false;
+      }
+    });
+
+    document.getElementById('save-attendance').addEventListener('click', async () => {
+      const classId = document.getElementById('class-select').value;
+      const date = document.getElementById('attendance-date').value;
+      const subject = document.getElementById('subject').value;
+      const classNumber = Number(document.getElementById('class-number')?.value || 1);
+      const statusMessage = document.getElementById('attendance-status-message');
+
+      if (!subject) {
+        alert('Select a subject before saving attendance.');
+        return;
+      }
+      if (statusMessage && statusMessage.classList.contains('alert-danger')) {
+        alert('This attendance session is locked and cannot be edited again.');
+        return;
+      }
+
+      const records = Array.from(document.querySelectorAll('.attendance-status')).reduce((acc, input) => {
+        if (input.checked) {
+          acc.push({
+            student_id: input.dataset.studentId,
+            status: input.value,
+            subject,
+          });
+        }
+        return acc;
+      }, []);
+
+      try {
+        const response = await apiCall('/attendance', 'POST', { class_id: Number(classId), class_number: classNumber, attendance_date: date, subject, records });
+        if (response) {
+          alert('Attendance saved successfully!');
+          document.getElementById('attendance-records').style.display = 'none';
+          if (statusMessage) {
+            statusMessage.classList.add('d-none');
+            statusMessage.classList.remove('alert-danger', 'alert-warning');
+            statusMessage.textContent = '';
+          }
+          if (typeof loadDashboard === 'function') {
+            loadDashboard();
+          }
+        }
+      } catch (error) {
+        alert(error.message || 'Failed to save attendance.');
+      }
+    });
+
+    const addStudentForm = document.getElementById('add-student-form');
+    if (addStudentForm) {
+      addStudentForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const payload = {
+          roll_number: document.getElementById('student-roll-number').value.trim(),
+          full_name: document.getElementById('student-full-name').value.trim(),
+          class_id: Number(document.getElementById('student-class-select').value) || null,
+          email: document.getElementById('student-email').value.trim(),
+          phone: document.getElementById('student-phone').value.trim(),
+        };
+
+        if (!payload.roll_number || !payload.full_name || !payload.class_id) {
+          alert('Enter roll number, full name, and class.');
+          return;
+        }
+
+        const result = await apiCall('/students', 'POST', payload);
+        if (result) {
+          alert('Student added successfully.');
+          addStudentForm.reset();
+          loadDashboard();
+        }
+      });
+    }
+
+    const reportForm = document.getElementById('report-form');
+    if (reportForm) {
+      reportForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const studentId = document.getElementById('report-student').value;
+        const startDate = document.getElementById('report-start').value;
+        const endDate = document.getElementById('report-end').value;
+
+        if (!studentId) {
+          alert('Select a student to generate the report.');
+          return;
+        }
+
+        await loadReport(studentId, startDate, endDate);
+      });
+    }
+
+    // Marks form
+    const marksForm = document.getElementById('marks-form');
+    if (marksForm) {
+      marksForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const studentId = document.getElementById('marks-student-select').value;
+        const subject = document.getElementById('marks-subject').value;
+
+        if (!studentId || !subject) {
+          alert('Select both student and subject.');
+          return;
+        }
+
+        // Try to load existing marks
+        const marks = await apiCall(`/attendance/subject-marks?student_id=${studentId}&subject=${subject}`);
+        
+        // Populate marks fields
+        if (marks && marks.length > 0) {
+          const mark = marks[0];
+          document.getElementById('ia1').value = mark.ia1 || '';
+          document.getElementById('ia2').value = mark.ia2 || '';
+          document.getElementById('ia3').value = mark.ia3 || '';
+          document.getElementById('best-two').value = mark.best_two_average || '';
+        } else {
+          document.getElementById('ia1').value = '';
+          document.getElementById('ia2').value = '';
+          document.getElementById('ia3').value = '';
+          document.getElementById('best-two').value = '';
+        }
+
+        document.getElementById('marks-input').style.display = 'block';
+      });
+    }
+
+    // Save marks
+    const saveMarksBtn = document.getElementById('save-marks');
+    if (saveMarksBtn) {
+      saveMarksBtn.addEventListener('click', async () => {
+        const studentId = document.getElementById('marks-student-select').value;
+        const subject = document.getElementById('marks-subject').value;
+        const ia1 = parseFloat(document.getElementById('ia1').value);
+        const ia2 = parseFloat(document.getElementById('ia2').value);
+        const ia3 = parseFloat(document.getElementById('ia3').value);
+
+        if (!studentId || !subject || isNaN(ia1) || isNaN(ia2) || isNaN(ia3)) {
+          alert('Fill all IA marks with valid numbers.');
+          return;
+        }
+
+        // Calculate best two average
+        const marks = [ia1, ia2, ia3].sort((a, b) => b - a);
+        const bestTwoAvg = ((marks[0] + marks[1]) / 2).toFixed(2);
+        document.getElementById('best-two').value = bestTwoAvg;
+
+        const payload = {
+          student_id: studentId,
+          subject,
+          ia1,
+          ia2,
+          ia3,
+          best_two_average: parseFloat(bestTwoAvg),
+          status: bestTwoAvg >= 10 ? 'Pass' : 'Fail',
+        };
+
+        const result = await apiCall('/attendance/subject-marks', 'POST', payload);
+        if (result) {
+          alert('Marks saved successfully!');
+          document.getElementById('marks-form').reset();
+          document.getElementById('marks-input').style.display = 'none';
+        }
+      });
+    }
+
+    // Initialize
+    populateTeacherSubjectSelects();
+    loadDashboard();
+  </script>
+  
+  <!-- Student detail modal -->
+  <div class="modal fade" id="studentDetailModal" tabindex="-1" aria-labelledby="student-detail-title" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="student-detail-title">Student Attendance Breakdown</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="student-detail-body">
+          <!-- populated dynamically -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
