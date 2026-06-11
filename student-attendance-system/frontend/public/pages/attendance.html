@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Attendance</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="container mt-5">
+    <div class="row">
+      <div class="col-lg-10 mx-auto">
+        <!-- Attendance Form -->
+        <div class="card mb-4">
+          <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Mark Attendance</h4>
+          </div>
+          <div class="card-body">
+            <form id="attendance-form">
+              <div class="row mb-3">
+                <div class="col-md-4">
+                  <label for="attendance-date" class="form-label">Attendance Date</label>
+                  <input type="date" class="form-control" id="attendance-date" required>
+                </div>
+                <div class="col-md-4">
+                  <label for="class-select" class="form-label">Class</label>
+                  <select class="form-control" id="class-select" required>
+                    <option value="">Select class</option>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label for="class-number" class="form-label">Class Number</label>
+                  <input type="number" class="form-control" id="class-number" min="1" value="1" required>
+                </div>
+              </div>
+
+              <div class="row mb-3">
+                <div class="col-md-12">
+                  <label for="attendance-subject" class="form-label">Subject</label>
+                  <select class="form-control" id="attendance-subject" required>
+                    <option value="aiml12">AIML</option>
+                    <option value="db12">DBMS</option>
+                    <option value="math12">Mathematics</option>
+                    <option value="py12">Python</option>
+                    <option value="ds12">Data Structures</option>
+                  </select>
+                </div>
+              </div>
+
+              <div id="student-attendance-container" class="mb-3">
+                <p class="text-muted">Select a class to load students</p>
+              </div>
+
+              <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-success btn-lg">Submit Attendance</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Daily Attendance Summary -->
+        <div class="card">
+          <div class="card-header bg-info text-white">
+            <h4 class="mb-0">Daily Attendance Summary</h4>
+          </div>
+          <div class="card-body">
+            <div id="daily-attendance-list">
+              <p class="text-muted">Loading...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../js/app.js"></script>
+  <script>
+    // Set today's date as default
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('attendance-date').value = today;
+
+    // Load classes when page loads
+    document.addEventListener('DOMContentLoaded', async () => {
+      await loadClasses();
+      await loadDailyAttendance();
+      
+      // Reload daily attendance every 30 seconds
+      setInterval(loadDailyAttendance, 30000);
+    });
+
+    // Load students when class is selected
+    document.getElementById('class-select').addEventListener('change', async (e) => {
+      const classId = e.target.value;
+      if (!classId) {
+        document.getElementById('student-attendance-container').innerHTML = '<p class="text-muted">Select a class to load students</p>';
+        return;
+      }
+
+      try {
+        const response = await api(`/api/students?class_id=${classId}`);
+        const students = Array.isArray(response) ? response : [];
+        
+        if (students.length === 0) {
+          document.getElementById('student-attendance-container').innerHTML = '<p class="text-warning">No students found in this class</p>';
+          return;
+        }
+
+        let html = '<label class="form-label"><strong>Student Attendance</strong></label><div class="table-responsive"><table class="table table-sm table-bordered">';
+        html += '<thead><tr><th>Roll Number</th><th>Student Name</th><th><input type="radio" name="mark-all-present" value="present" onclick="markAllAttendance(\'present\')"> Present</th><th><input type="radio" name="mark-all-absent" value="absent" onclick="markAllAttendance(\'absent\')"> Absent</th><th><input type="radio" name="mark-all-late" value="late" onclick="markAllAttendance(\'late\')"> Late</th><th><input type="radio" name="mark-all-excused" value="excused" onclick="markAllAttendance(\'excused\')"> Excused</th></tr></thead>';
+        html += '<tbody>';
+
+        students.forEach((student) => {
+          html += `
+            <tr>
+              <td>${student.roll_number}</td>
+              <td>${student.full_name}</td>
+              <td><input type="radio" name="status-${student.student_id}" value="present" checked></td>
+              <td><input type="radio" name="status-${student.student_id}" value="absent"></td>
+              <td><input type="radio" name="status-${student.student_id}" value="late"></td>
+              <td><input type="radio" name="status-${student.student_id}" value="excused"></td>
+            </tr>
+          `;
+        });
+
+        html += '</tbody></table></div>';
+        document.getElementById('student-attendance-container').innerHTML = html;
+      } catch (error) {
+        console.error('Error loading students:', error);
+        document.getElementById('student-attendance-container').innerHTML = `<p class="text-danger">Error loading students: ${error.message}</p>`;
+      }
+    });
+
+    // Mark all students with same status
+    window.markAllAttendance = (status) => {
+      const classId = document.getElementById('class-select').value;
+      if (!classId) return;
+
+      document.querySelectorAll(`input[name^="status-"]`).forEach((input) => {
+        if (input.value === status) {
+          input.checked = true;
+        }
+      });
+    };
+
+    // Submit attendance
+    document.getElementById('attendance-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const classId = document.getElementById('class-select').value;
+      const attendanceDate = document.getElementById('attendance-date').value;
+      const subject = document.getElementById('attendance-subject').value;
+
+      if (!classId || !attendanceDate || !subject) {
+        alert('Please fill all required fields');
+        return;
+      }
+
+      // Collect attendance records
+      const records = [];
+      document.querySelectorAll(`input[name^="status-"]`).forEach((input) => {
+        if (input.checked) {
+          const studentId = input.name.replace('status-', '');
+          records.push({
+            student_id: studentId,
+            status: input.value.charAt(0).toUpperCase() + input.value.slice(1)
+          });
+        }
+      });
+
+      if (records.length === 0) {
+        alert('Please select attendance for at least one student');
+        return;
+      }
+
+      try {
+        const result = await api('/api/attendance', {
+          method: 'POST',
+          body: JSON.stringify({
+            class_id: Number(classId),
+            attendance_date: attendanceDate,
+            subject,
+            records
+          })
+        });
+
+        alert(`Attendance recorded for ${result.recorded} students`);
+        
+        // Reload daily attendance
+        await loadDailyAttendance();
+        
+        // Reset form
+        document.getElementById('attendance-form').reset();
+        document.getElementById('attendance-date').value = today;
+        document.getElementById('student-attendance-container').innerHTML = '<p class="text-muted">Select a class to load students</p>';
+      } catch (error) {
+        alert(`Error: ${error.message}`);
+        console.error('Error submitting attendance:', error);
+      }
+    });
+  </script>
+</body>
+</html>
