@@ -1,1 +1,0 @@
-# dbms_miniproject_sams
